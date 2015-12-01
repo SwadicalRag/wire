@@ -77,3 +77,65 @@ local function ShowExtensionMenu()
 end
 
 concommand.Add("wire_expression2_extension_menu", ShowExtensionMenu)
+
+local function ShowMenuDialog()
+  local panel = vgui.Create("DListLayout")
+  panel:SetWide(400)
+  panel:SetPos(ScrW() * 3/4 - 200, 0)
+  panel:DockPadding(10, 10, 10, 10)
+
+  panel:SetPaintBackgroundEnabled(true)
+  panel:SetPaintBorderEnabled(true)
+  panel:SetMouseInputEnabled(true)
+  panel:SetDrawBackground(true)
+
+  local header = Label("E2 extensions", panel)
+  header:SetDark(true)
+  header:SetFont("DermaLarge")
+  header:Dock(TOP)
+
+  local label = Label("Wiremod includes Expression2, a powerful programmable microchip. It has an extension system, " ..
+          "which allows it to do things like make HTTP requests and run console commands. As a super " ..
+          "admin, you should take a moment to look over the extensions, as some of them affect the " ..
+          "security of your server.", panel)
+  label:Dock(TOP)
+  label:SetWrap(true)
+  label:SetDark(true)
+  label:SetAutoStretchVertical(true)
+
+  local yes_button = vgui.Create("DButton")
+  yes_button:SetText("Show me the extensions")
+  function yes_button:GetToggle() return true end -- makes it draw blue
+  function yes_button.DoClick()
+    ShowExtensionMenu()
+    panel:Remove()
+  end
+
+  local no_button = vgui.Create("DButton")
+  no_button:SetText("Not now")
+  function no_button.DoClick()
+    panel:Remove()
+    LocalPlayer():PrintMessage(HUD_PRINTTALK, "You can reopen the E2 extension menu in future with the command wire_expression2_extension_menu.")
+  end
+
+  local button_area = vgui.Create("DPanel", panel)
+  button_area:SetHeight(yes_button:GetTall())
+  button_area:Dock(TOP)
+  button_area:DockMargin(0, 10, 0, 0)
+  yes_button:SetParent(button_area)
+  no_button:SetParent(button_area)
+
+  panel:InvalidateLayout(true)
+
+  local dividing_point = button_area:GetWide() * 2/3
+  yes_button:SetPos(0, 0)
+  yes_button:SetWide(dividing_point - 2)
+  no_button:SetPos(dividing_point + 2, 0)
+  no_button:SetWide(button_area:GetWide() - dividing_point - 2)
+end
+
+hook.Add("InitPostEntity", "wire_expression2_extension_menu", function()
+  if LocalPlayer():IsSuperAdmin() then
+    ShowMenuDialog() -- TODO cookie
+  end
+end)
